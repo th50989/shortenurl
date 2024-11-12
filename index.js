@@ -2,9 +2,10 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+
+app.use(express.urlencoded({ extended: true }));
 const shortid = require("shortid");
+const dns = require("dns");
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -22,8 +23,12 @@ app.get('/api/hello', function(req, res) {
 });
 
 const map1 = new Map();
-app.get('/api/shorturl', function(req, res) {
-  const { url } = req.body;
+app.post('/api/shorturl', function(req, res) {
+  console.log(req.body.url);
+  console.log(req.params);
+  console.log(req.query);
+ 
+  const  url  = req.body.url;
   const urlPattern = /^(http|https):\/\/[^ "]+$/;
 
   // Validate URL
@@ -45,16 +50,29 @@ app.get('/api/shorturl', function(req, res) {
 
 app.get("/api/shorturl/:shortUrl", (req, res) => {
   const shortUrlCode = req.params.shortUrl;
-
+  console.log(shortUrlCode);
+  let a = 0;
+  let b = '';
   map1.forEach((value,key)=>{
-    if(key == shortUrlCode)
+    if(value === shortUrlCode)
     {
-      res.redirect(value);
+      console.log("yes");
+      a = 1;
+      b=key;
+      
+    }
+    else{
+      console.log("no");
+      
+    }
+  })
+  if(a==1)
+    {
+      res.redirect(b);
     }
     else{
       res.json({ error: "No short URL found" });
     }
-  })
 });
 
 app.listen(port, function() {
